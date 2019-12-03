@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		35F7AA2B1D9EBF19009C4036 /* CGFloat+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35F7AA2A1D9EBF19009C4036 /* CGFloat+Extensions.swift */; };
+		437E836E2396EA2B00D24EA8 /* GameOverScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 437E836D2396EA2B00D24EA8 /* GameOverScene.swift */; };
 		D90F6C5419BC101200A203F4 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D90F6C5319BC101200A203F4 /* AppDelegate.swift */; };
 		D90F6C5619BC101200A203F4 /* GameScene.sks in Resources */ = {isa = PBXBuildFile; fileRef = D90F6C5519BC101200A203F4 /* GameScene.sks */; };
 		D90F6C5819BC101200A203F4 /* GameScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = D90F6C5719BC101200A203F4 /* GameScene.swift */; };
@@ -23,6 +24,7 @@
 
 /* Begin PBXFileReference section */
 		35F7AA2A1D9EBF19009C4036 /* CGFloat+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "CGFloat+Extensions.swift"; sourceTree = "<group>"; };
+		437E836D2396EA2B00D24EA8 /* GameOverScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameOverScene.swift; sourceTree = "<group>"; };
 		D90F6C4E19BC101200A203F4 /* IK-Ninja.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "IK-Ninja.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D90F6C5219BC101200A203F4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D90F6C5319BC101200A203F4 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -72,6 +74,7 @@
 				D90F6C7419BC105100A203F4 /* SKTUtils */,
 				D90F6C5319BC101200A203F4 /* AppDelegate.swift */,
 				D90F6C5519BC101200A203F4 /* GameScene.sks */,
+				437E836D2396EA2B00D24EA8 /* GameOverScene.swift */,
 				D90F6C5719BC101200A203F4 /* GameScene.swift */,
 				D90F6C5919BC101200A203F4 /* GameViewController.swift */,
 				D90F6C5B19BC101200A203F4 /* Main.storyboard */,
@@ -188,6 +191,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				437E836E2396EA2B00D24EA8 /* GameOverScene.swift in Sources */,
 				D90F6C5819BC101200A203F4 /* GameScene.swift in Sources */,
 				D90F6C5A19BC101200A203F4 /* GameViewController.swift in Sources */,
 				35F7AA2B1D9EBF19009C4036 /* CGFloat+Extensions.swift in Sources */,

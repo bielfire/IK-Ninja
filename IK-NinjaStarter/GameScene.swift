@@ -40,9 +40,18 @@ class GameScene: SKScene {
     var firstTouch = false
     var lastSpawnTimeInterval: TimeInterval = 0
     var lastUpdateTimeInterval: TimeInterval = 0
+    var upperLeg: SKNode!
+    var lowerLeg: SKNode!
+    var foot: SKNode!
+    var score: Int = 0
+    var life: Int = 3
     let upperArmAngleDeg: CGFloat = -10
     let lowerArmAngleDeg: CGFloat = 130
     let targetNode = SKNode()
+    let upperLegAngleDeg: CGFloat = 22
+    let lowerLegAngleDeg: CGFloat = -30
+    let scoreLabel = SKLabelNode()
+    let livesLabel = SKLabelNode()
     
     // MARK: - Override
     
@@ -77,6 +86,31 @@ class GameScene: SKScene {
         rotationConstraint.enabled = false
         orientToNodeConstraint.enabled = false
         head.constraints = [orientToNodeConstraint, rotationConstraint]
+        
+        upperLeg = lowerTorso.childNode(withName: "leg_upper_back")
+        lowerLeg = upperLeg.childNode(withName: "leg_lower_back")
+        foot = lowerLeg.childNode(withName: "foot_back")
+        
+        let value = CGFloat(-45).degreesToRadians()
+        let valueTwo = CGFloat(160).degreesToRadians()
+        lowerLeg.reachConstraints = SKReachConstraints(lowerAngleLimit: value, upperAngleLimit: 0)
+        upperLeg.reachConstraints = SKReachConstraints(lowerAngleLimit: value, upperAngleLimit: valueTwo)
+        
+        scoreLabel.fontName = "Chalkduster"
+        scoreLabel.text = "Score: 0"
+        scoreLabel.fontSize = 20
+        scoreLabel.horizontalAlignmentMode = .left
+        scoreLabel.verticalAlignmentMode = .top
+        scoreLabel.position = CGPoint(x: 10, y: size.height -  10)
+        addChild(scoreLabel)
+        
+        livesLabel.fontName = "Chalkduster"
+        livesLabel.text = "Lives: 3"
+        livesLabel.fontSize = 20
+        livesLabel.horizontalAlignmentMode = .right
+        livesLabel.verticalAlignmentMode = .top
+        livesLabel.position = CGPoint(x: size.width - 10, y: size.height - 10)
+        addChild(livesLabel)
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -93,9 +127,28 @@ class GameScene: SKScene {
             let location = touch.location(in: self)
             lowerTorso.xScale =
                 location.x < frame.midX ? abs(lowerTorso.xScale) * -1 : abs(lowerTorso.xScale)
-            punchAt(location)
+            let lower = location.y < lowerTorso.position.y + 10
+            if lower {
+                kickAt(location)
+            }
+                
+            else {
+                punchAt(location)
+            }
+            
             targetNode.position = location
         }
+    }
+    
+    override func update(_ currentTime: CFTimeInterval) {
+        var timeSinceLast = currentTime - lastUpdateTimeInterval
+        lastUpdateTimeInterval = currentTime
+        if timeSinceLast > 1.0 {
+            timeSinceLast = 1.0 / 60.0
+            lastUpdateTimeInterval = currentTime
+        }
+        
+        updateWithTimeSinceLastUpdate(timeSinceLast: timeSinceLast)
     }
     
     // MARK: - Methods
@@ -126,6 +179,27 @@ class GameScene: SKScene {
     }
     
     func addShuriken() {
+        
+        let hitAction = SKAction.run({
+            if self.life > 0 {
+                self.life -= 1
+            }
+            
+            self.livesLabel.text = "Lives: \(Int(self.life))"
+            
+            let blink = SKAction.sequence([SKAction.fadeOut(withDuration: 0.05), SKAction.fadeIn(withDuration: 0.05)])
+            
+            let checkGameOverAction = SKAction.run({
+                if self.life <= 0 {
+                    let transition = SKTransition.fade(withDuration: 1.0)
+                    let gameOverScene = GameOverScene(size: self.size)
+                    self.view?.presentScene(gameOverScene, transition: transition)
+                }
+            })
+            
+            self.lowerTorso.run(SKAction.sequence([blink, blink, checkGameOverAction]))
+        })
+        
         let shuriken = SKSpriteNode(imageNamed: "projectile")
         
         let minY = lowerTorso.position.y - 60 + shuriken.size.height/2
@@ -148,7 +222,7 @@ class GameScene: SKScene {
         
         let actionMove = SKAction.move(to: CGPoint(x: size.width/2, y: actualY), duration: actualDuration)
         let actionMoveDone = SKAction.removeFromParent()
-        shuriken.run(SKAction.sequence([actionMove, actionMoveDone]))
+        shuriken.run(SKAction.sequence([actionMove, hitAction, actionMoveDone]))
         
         let angle = left == 0 ? CGFloat(-90).degreesToRadians() : CGFloat(90).degreesToRadians()
         let rotate = SKAction.repeatForever(SKAction.rotate(byAngle: angle, duration: 0.2))
@@ -161,17 +235,6 @@ class GameScene: SKScene {
             lastSpawnTimeInterval = 0
             addShuriken()
         }
-    }
-    
-    override func update(_ currentTime: CFTimeInterval) {
-        var timeSinceLast = currentTime - lastUpdateTimeInterval
-        lastUpdateTimeInterval = currentTime
-        if timeSinceLast > 1.0 {
-            timeSinceLast = 1.0 / 60.0
-            lastUpdateTimeInterval = currentTime
-        }
-        
-        updateWithTimeSinceLastUpdate(timeSinceLast: timeSinceLast)
     }
     
     func intersectionCheckAction(for effectorNode: SKNode) -> SKAction {
@@ -199,6 +262,9 @@ class GameScene: SKScene {
                             let cleanUpAction = SKAction.removeFromParent()
                             spark.run(SKAction.sequence([fadeAndScaleAction, cleanUpAction]))
                             
+                            self.score += 1
+                            self.scoreLabel.text = "Score: \(Int(self.score))"
+                            
                             // remove the shuriken
                             node.removeFromParent()
                         }
@@ -213,4 +279,18 @@ class GameScene: SKScene {
         
         return checkIntersection
     }
+    
+    func kickAt(_ location: CGPoint) {
+        let kick = SKAction.reach(to: location, rootNode: upperLeg, duration: 0.1)
+        
+        let restore = SKAction.run {
+            self.upperLeg.run(SKAction.rotate(toAngle: self.upperLegAngleDeg.degreesToRadians(), duration: 0.1))
+            self.lowerLeg.run(SKAction.rotate(toAngle: self.lowerLegAngleDeg.degreesToRadians(), duration: 0.1))
+        }
+        
+        let checkIntersection = intersectionCheckAction(for: foot)
+        
+        foot.run(SKAction.sequence([kick, checkIntersection, restore]))
+    }
 }
+
